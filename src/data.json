@@ -1,0 +1,6 @@
+{
+    "authors": "Christian Alessandri, Davide Sciaulino",
+    "license": "GPL-3.0",
+    "version": "development 0.1.4.4",
+    "cpp_compiler": "g++"
+}
