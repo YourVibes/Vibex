@@ -1,4 +1,7 @@
 # Changelog  
+**Development Version 0.1.5.4**
+- Added the ability to concatenate multiple strings during output.
+  
 **Development Version 0.1.5.3**
 - Fixed a bug in string parsing.
   

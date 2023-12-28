@@ -141,7 +141,8 @@ class Parser:
         self.emitter.emit('#include <fcntl.h>', self.section, True)
         self.emitter.emit('#include <string>', self.section, True)
         self.emitter.emit('#include <cmath>', self.section, True)
-        self.emitter.emit('\nusing namespace std;\n', self.section, True)
+        self.emitter.emit('\nusing namespace std;', self.section, True)
+        self.emitter.emit('\nconst string CONCAT = "";\n', self.section, True)
         self.section = Section.CODE
         self.emitter.emit('\nint main()\n{', self.section, True)
         self.emitter.emit('_setmode(_fileno(stdout), _O_U16TEXT);\n', self.section, True)
@@ -515,8 +516,18 @@ class Parser:
             self.nextToken()
 
             if self.checkToken(TokenType.STRING_IDENT):
-                self.emitter.emit(startExpression + " << \"" + self.curToken.text + "\"" + endExpression + ";", self.section, True)
+                self.emitter.emit(startExpression + " << \"" + self.curToken.text + "\"", self.section, False)
                 self.nextToken()
+
+                while self.checkToken(TokenType.PLUS):
+                    self.nextToken()
+                    if self.checkToken(TokenType.IDENT):
+                        self.emitter.emit(" << " + self.postfixExpression(self.infixToPostfixExpression(self.getExpression())), self.section, False)
+                    else:
+                        self.emitter.emit(" << \"" + self.curToken.text + "\"", self.section, False)
+                        self.nextToken()
+
+                self.emitter.emit(endExpression + ";", self.section, True)
             else:
                 self.emitter.emit(startExpression + " << " + self.postfixExpression(self.infixToPostfixExpression(self.getExpression())) + endExpression + ";", self.section, True)
 
@@ -908,7 +919,7 @@ class Parser:
         elif self.checkToken(TokenType.NEWLINE):
             self.nl()
         else:
-            self.abort("SEMICOLON or NEWLINE expected")
+            self.abort("SEMICOLON or NEWLINE expected, got: " + self.curToken.text)
 
     # Go to the newline
     def nl(self):
@@ -1047,7 +1058,7 @@ class Parser:
         else:
             expr += self.getActualParametersExpression()
             if not self.checkPrev(TokenType.RPAREN):
-                self.abort("Expected IDENT, got " + self.curToken.kind.name)
+                self.abort("Expected IDENT, got " + self.curToken.text)
         expr += ")"
         return expr
 
