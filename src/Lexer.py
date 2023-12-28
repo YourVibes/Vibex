@@ -155,9 +155,8 @@ class Lexer:
                     self.nextChar()
                     token = Token('>>=', TokenType.BW_RSHIFTEQ)
                 else:
-                    lastChar = self.curChar
                     self.nextChar()
-                    token = Token(lastChar + self.curChar, TokenType.BW_RSHIFT)
+                    token = Token('>>', TokenType.BW_RSHIFT)
             else:
                 token = Token(self.curChar, TokenType.GT)
         elif self.curChar == '<':
@@ -172,9 +171,8 @@ class Lexer:
                     self.nextChar()
                     token = Token('<<=', TokenType.BW_LSHIFTEQ)
                 else:
-                    lastChar = self.curChar
                     self.nextChar()
-                    token = Token(lastChar + self.curChar, TokenType.BW_LSHIFT)
+                    token = Token('<<', TokenType.BW_LSHIFT)
             else:
                 token = Token(self.curChar, TokenType.LT)
         elif self.curChar == '&':

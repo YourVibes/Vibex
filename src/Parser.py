@@ -1081,6 +1081,7 @@ class Parser:
                     parenCount += 1
                 elif self.checkToken(TokenType.RPAREN):
                     parenCount -= 1
+
                 expr.append(self.curToken)
                 lastAnalysisInAFunction = False
                 self.nextToken()
@@ -1101,8 +1102,6 @@ class Parser:
     def infixToPostfixExpression(self, expr):
         res = []
         stack = []
-        numSys = ''
-        incDec = ''
 
         def getPrecedence(operator):
             precedences = {
@@ -1120,71 +1119,89 @@ class Parser:
                 TokenType.BW_NOT:           100,
             }
             return precedences.get(operator, 0)
+        
+        def checkUnary():
+            nonlocal i, unary
 
-        def handleToken(token):
-            nonlocal numSys, incDec
+            if self.checkMyToken(expr[i], TokenType.PLUS):
+                unary = '+'
+                i+=1
+            elif self.checkMyToken(expr[i], TokenType.MINUS):
+                unary = '-'
+                i+=1
+            elif self.checkMyToken(expr[i], TokenType.INCREMENT):
+                unary = '++'
+                i+=1
+            elif self.checkMyToken(expr[i], TokenType.DECREMENT):
+                unary = '--'
+                i+=1
+            elif self.checkMyToken(expr[i], TokenType.BW_NOT):
+                unary = '~'
+                i+=1
 
-            if self.checkMyToken(token, TokenType.LPAREN):
-                pass
-            elif self.checkMyToken(token, TokenType.INCREMENT):
-                incDec = '++'
-            elif self.checkMyToken(token, TokenType.DECREMENT):
-                incDec = '--'
-            elif self.checkMyToken(token, TokenType.BIN):
+        def checkNumSys():
+            nonlocal i, numSys
+
+            if self.checkMyToken(expr[i], TokenType.BIN):
                 numSys = '0b'
-            elif self.checkMyToken(token, TokenType.OCT):
+                i+=1
+            elif self.checkMyToken(expr[i], TokenType.OCT):
                 numSys = '0'
-            elif self.checkMyToken(token, TokenType.DEC):
+                i+=1
+            elif self.checkMyToken(expr[i], TokenType.DEC):
                 numSys = ''
-            elif self.checkMyToken(token, TokenType.HEX):
+                i+=1
+            elif self.checkMyToken(expr[i], TokenType.HEX):
                 numSys = '0x'
-            elif self.checkMyToken(token, TokenType.NUMBER):
-                res.append(Token(incDec + numSys + token.text, token.kind))
-                incDec = ''
-                numSys = ''
-            elif self.checkMyToken(token, TokenType.LABS):
-                res.append(Token(token.text, token.kind))
-                numSys = ''
-            elif self.checkMyToken(token, TokenType.RABS):
-                while stack and not self.checkMyToken(stack[-1], TokenType.LPAREN):
-                    res.append(stack.pop())
-                    numSys = ''
-                res.append(Token(token.text, token.kind))
-                numSys = ''
-            elif self.checkMyToken(token, TokenType.IDENT):
-                token.text = incDec + token.text
-                res.append(token)
-                incDec = ''
-            elif self.checkMyToken(token, TokenType.STRING_IDENT) or self.checkMyToken(token, TokenType.ARRAY) or self.checkMyToken(token, TokenType.FUNCTION) or self.checkMyToken(token, TokenType.TRUE) or self.checkMyToken(token, TokenType.FALSE):
-                res.append(token)
-            elif Token.checkIfType(token.text) is not None:
-                while stack and getPrecedence(stack[-1]) >= getPrecedence(token):
-                    res.append(stack.pop())
-                stack.append(token)
-                numSys = ''
-            elif self.checkMyToken(token, TokenType.RPAREN):
-                while stack and not self.checkMyToken(stack[-1], TokenType.LPAREN):
-                    res.append(stack.pop())
-                    numSys = ''
-            else:
-                stack.append(token)
-                numSys = ''
+                i+=1
 
-        for token in expr:
-            if len(res) > 0:
-                prevTok = res.pop()
-                if prevTok.kind == TokenType.IDENT and (self.checkMyToken(token, TokenType.INCREMENT) or self.checkMyToken(token, TokenType.DECREMENT)):
-                    res.append(Token(prevTok.text + token.text, prevTok.kind))
-                else:
-                    res.append(prevTok)
-                    handleToken(token)
+        i = 0
+        while i < len(expr):
+            unary = ''
+            numSys = ''
+
+            if self.checkMyToken(expr[i], TokenType.LPAREN):
+                stack.append(Token('(', TokenType.LPAREN))
+                i+=1
+
+            if i>0:
+                if not self.checkMyToken(expr[i-1], TokenType.IDENT) and not self.checkMyToken(expr[i-1], TokenType.NUMBER) and not self.checkMyToken(expr[i-1], TokenType.RPAREN):
+                    checkUnary()
             else:
-                handleToken(token)
+                checkUnary()
+
+            checkNumSys()
+
+            if self.checkMyToken(expr[i], TokenType.NUMBER):
+                res.append(Token('(' + unary + numSys + expr[i].text + ')', expr[i].kind))
+            elif self.checkMyToken(expr[i], TokenType.LABS):
+                res.append(expr[i])
+            elif self.checkMyToken(expr[i], TokenType.RABS):
+                while stack and not self.checkMyToken(stack[-1], TokenType.LABS):
+                    res.append(stack.pop())
+                res.append(expr[i])
+            elif self.checkMyToken(expr[i], TokenType.IDENT):
+                text = '(' + unary + expr[i].text + ')' 
+                res.append(Token(text, expr[i].kind))
+            elif self.checkMyToken(expr[i], TokenType.STRING_IDENT) or self.checkMyToken(expr[i], TokenType.ARRAY) or self.checkMyToken(expr[i], TokenType.FUNCTION) or self.checkMyToken(expr[i], TokenType.TRUE) or self.checkMyToken(expr[i], TokenType.FALSE):
+                res.append(expr[i])
+            elif Token.checkIfType(expr[i].text) is not None:
+                while stack and getPrecedence(stack[-1]) >= getPrecedence(expr[i]):
+                    res.append(stack.pop())
+                stack.append(expr[i])
+            elif self.checkMyToken(expr[i], TokenType.RPAREN):
+                while stack and not self.checkMyToken(stack[-1], TokenType.LPAREN):
+                    res.append(stack.pop())
+            else:
+                stack.append(expr[i])
+
+            i+=1
 
         while stack:
             res.append(stack.pop())
 
-        return res
+        filteredRes = [token for token in res if token.kind != TokenType.LPAREN]
+        return filteredRes
 
 
     # Analyze a postfix expression

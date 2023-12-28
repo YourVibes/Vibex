@@ -1,5 +1,10 @@
 # Changelog  
-**Development Version 0.1.5.0**
+**Development Version 0.1.5.1**
+- Fixed a bug in the parsing of unary opeartors;
+- Fixed a bug in the parsing of absolute values;
+- Various optimizations.
+  
+**Development Version 0.1.5**
 - Added the ability to use increment and decrement operators;
 - Fixed a bug in the parsing of parenthesized expressions;
 - Minor improvements.

@@ -99,11 +99,11 @@ python3 vibex.py --help
 | <=       | Less than or equal to	  |
   
 **Logical**
-| Operator | Name        |
-|----------|-------------|
-| &&       | Logical AND |
-| \|\|     | Logical OR	 |
-| !        | Logical NOT |
+| Operator   | Name        |
+|------------|-------------|
+| && or AND  | Logical AND |
+| \|\| or OR | Logical OR  |
+| ! or NOT   | Logical NOT |
   
 #### For example
 **Power**
@@ -481,7 +481,12 @@ ASM
   
   
 ## Changelog Preview 📰
-**Development Version 0.1.5.0**
+**Development Version 0.1.5.1**
+- Fixed a bug in the parsing of unary opeartors;
+- Fixed a bug in the parsing of absolute values;
+- Various optimizations.
+  
+**Development Version 0.1.5**
 - Added the ability to use increment and decrement operators;
 - Fixed a bug in the parsing of parenthesized expressions;
 - Minor improvements.
