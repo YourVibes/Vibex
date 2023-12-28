@@ -1,4 +1,9 @@
 # Changelog  
+**Development Version 0.1.5.0**
+- Added the ability to use increment and decrement operators;
+- Fixed a bug in the parsing of parenthesized expressions;
+- Minor improvements.
+
 **Development Version 0.1.4.4**
 - Various optimizations.
   

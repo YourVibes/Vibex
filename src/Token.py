@@ -34,6 +34,12 @@ class Token:
         return False
 
     @staticmethod
+    def checkIfIncrementDecrementOperator(kind):
+        if 1060 <= kind.value < 1062:
+            return True
+        return False
+
+    @staticmethod
     def checkIfComparisonOperator(kind):
         if 1040 <= kind.value < 1049:
             return True

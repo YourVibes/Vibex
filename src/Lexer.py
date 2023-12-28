@@ -107,9 +107,9 @@ class Lexer:
         # Check the first character of this token to see if we can decide what it is.
         # If it is a multi-character operator (e.g. !=), a number, an identifier or a keyword, then it will process the remainder
         if self.curChar == '+':
-            token = self.checkBetween2Possibilities('=', TokenType.PLUS, TokenType.PLUSEQ)
+            token = self.checkBetween3Possibilities('+', '=', TokenType.PLUS, TokenType.INCREMENT, TokenType.PLUSEQ)
         elif self.curChar == '-':
-            token = self.checkBetween2Possibilities('=', TokenType.MINUS, TokenType.MINUSEQ)
+            token = self.checkBetween3Possibilities('-', '=', TokenType.MINUS, TokenType.DECREMENT, TokenType.MINUSEQ)
         elif self.curChar == '*':
             token = self.checkBetween3Possibilities('*', '=', TokenType.ASTERISK, TokenType.ASTERISKASTERISK, TokenType.ASTERISKEQ)
         elif self.curChar == '/':

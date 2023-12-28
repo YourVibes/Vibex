@@ -456,7 +456,11 @@ class Parser:
                     self.emitter.emit(' ' + self.curToken.text + ' ', self.section, False)
                     self.nextToken()
                 else:
-                    self.abort("Expected ASSIGNMENT OPERATOR, got " + self.curToken.kind.name)
+                    if Token.checkIfIncrementDecrementOperator(self.curToken.kind):
+                        self.emitter.emit(self.curToken.text, self.section, False)
+                        self.nextToken()
+                    else:
+                        self.abort("Expected ASSIGNMENT OPERATOR, got " + self.curToken.kind.name)
                 self.emitter.emit(self.postfixExpression(self.infixToPostfixExpression(self.getExpression()), identType) + ";", self.section, True)
 
             self.checkEndInstruction()
@@ -860,19 +864,36 @@ class Parser:
 
     # Iteration step
     def iterationStep(self):
-        if self.checkToken(TokenType.IDENT):
-            varName = self.curToken.text
-            if varName in self.variables:
-                self.emitter.emit(varName, self.section, False)
-                self.match(TokenType.IDENT)
-                self.emitter.emit("=", self.section, False)
-                self.match(TokenType.EQ)
-                varData = self.variables[varName]
-                self.emitter.emit(self.postfixExpression(self.infixToPostfixExpression(self.getExpression()), varData[0]), self.section, False)
-            else:
-                self.abort(self.curToken.text + " is not initialised")
+        prevIncDec = False
+        if Token.checkIfIncrementDecrementOperator(self.curToken.kind):
+            prevIncDec = True
+            self.emitter.emit(self.curToken.text, self.section, False)
+            self.nextToken()
+
+        identName = self.curToken.text
+        identType = ''
+        if identName in self.variables:
+            identType = 'var'
+        elif identName in self.arrays:
+            self.abort("You cannot use an array to define the iteration step of a for loop")
+        elif identName in self.functions:
+            self.abort("You cannot use a function to define the iteration step of a for loop")
         else:
-            self.abort("Expected IDENT, got " + self.curToken.kind.name + " -> \'" + self.curToken.text + "\'")
+            self.abort(identName + " is not initialised")
+
+        self.emitter.emit(identName, self.section, False)
+        self.nextToken()
+
+        if Token.checkIfAssignmentOperator(self.curToken.kind):
+            self.emitter.emit(' ' + self.curToken.text + ' ', self.section, False)
+            self.nextToken()
+            self.emitter.emit(self.postfixExpression(self.infixToPostfixExpression(self.getExpression()), identType), self.section, False)
+        else:
+            if Token.checkIfIncrementDecrementOperator(self.curToken.kind):
+                self.emitter.emit(self.curToken.text, self.section, False)
+                self.nextToken()
+            elif not prevIncDec:
+                self.abort("Expected ASSIGNMENT OPERATOR, got " + self.curToken.kind.name)
 
 
 
@@ -1035,7 +1056,8 @@ class Parser:
     def getExpression(self):
         expr = []
         lastAnalysisInAFunction = False
-        while(not self.curTokenIsAnExpressionStopWord()):
+        parenCount = 0
+        while not self.curTokenIsAnExpressionStopWord() and parenCount >= 0:
             if lastAnalysisInAFunction and self.prevTokenIsAnExpressionStopWord():
                 break
 
@@ -1046,7 +1068,7 @@ class Parser:
                 expr.append(Token(arrName + "[" + self.postfixExpression(self.infixToPostfixExpression(self.getArrayExpression())) + "]", TokenType.ARRAY))
                 lastAnalysisInAFunction = False
                 self.nextToken()
-            elif self.checkPeek(TokenType.LPAREN): # If it is a function
+            elif self.checkPeek(TokenType.LPAREN) and self.checkToken(TokenType.IDENT): # If it is a function
                 funName = self.curToken.text
                 self.nextToken()
                 expr.append(Token(funName + "(" + self.getActualParametersExpression() + ")", TokenType.FUNCTION))
@@ -1055,6 +1077,10 @@ class Parser:
                 if self.checkToken(TokenType.IDENT):
                     if(not self.checkIfItExistsInScope(self.curToken.text, self.scope)):
                         self.abort(self.curToken.text + " is not initialised")
+                elif self.checkToken(TokenType.LPAREN):
+                    parenCount += 1
+                elif self.checkToken(TokenType.RPAREN):
+                    parenCount -= 1
                 expr.append(self.curToken)
                 lastAnalysisInAFunction = False
                 self.nextToken()
@@ -1076,6 +1102,7 @@ class Parser:
         res = []
         stack = []
         numSys = ''
+        incDec = ''
 
         def getPrecedence(operator):
             precedences = {
@@ -1094,9 +1121,15 @@ class Parser:
             }
             return precedences.get(operator, 0)
 
-        for token in expr:
+        def handleToken(token):
+            nonlocal numSys, incDec
+
             if self.checkMyToken(token, TokenType.LPAREN):
                 pass
+            elif self.checkMyToken(token, TokenType.INCREMENT):
+                incDec = '++'
+            elif self.checkMyToken(token, TokenType.DECREMENT):
+                incDec = '--'
             elif self.checkMyToken(token, TokenType.BIN):
                 numSys = '0b'
             elif self.checkMyToken(token, TokenType.OCT):
@@ -1106,7 +1139,8 @@ class Parser:
             elif self.checkMyToken(token, TokenType.HEX):
                 numSys = '0x'
             elif self.checkMyToken(token, TokenType.NUMBER):
-                res.append(Token(numSys +  token.text, token.kind))
+                res.append(Token(incDec + numSys + token.text, token.kind))
+                incDec = ''
                 numSys = ''
             elif self.checkMyToken(token, TokenType.LABS):
                 res.append(Token(token.text, token.kind))
@@ -1117,7 +1151,11 @@ class Parser:
                     numSys = ''
                 res.append(Token(token.text, token.kind))
                 numSys = ''
-            elif self.checkMyToken(token, TokenType.IDENT) or self.checkMyToken(token, TokenType.STRING_IDENT) or self.checkMyToken(token, TokenType.ARRAY) or self.checkMyToken(token, TokenType.FUNCTION) or self.checkMyToken(token, TokenType.TRUE) or self.checkMyToken(token, TokenType.FALSE):
+            elif self.checkMyToken(token, TokenType.IDENT):
+                token.text = incDec + token.text
+                res.append(token)
+                incDec = ''
+            elif self.checkMyToken(token, TokenType.STRING_IDENT) or self.checkMyToken(token, TokenType.ARRAY) or self.checkMyToken(token, TokenType.FUNCTION) or self.checkMyToken(token, TokenType.TRUE) or self.checkMyToken(token, TokenType.FALSE):
                 res.append(token)
             elif Token.checkIfType(token.text) is not None:
                 while stack and getPrecedence(stack[-1]) >= getPrecedence(token):
@@ -1131,6 +1169,17 @@ class Parser:
             else:
                 stack.append(token)
                 numSys = ''
+
+        for token in expr:
+            if len(res) > 0:
+                prevTok = res.pop()
+                if prevTok.kind == TokenType.IDENT and (self.checkMyToken(token, TokenType.INCREMENT) or self.checkMyToken(token, TokenType.DECREMENT)):
+                    res.append(Token(prevTok.text + token.text, prevTok.kind))
+                else:
+                    res.append(prevTok)
+                    handleToken(token)
+            else:
+                handleToken(token)
 
         while stack:
             res.append(stack.pop())
@@ -1175,7 +1224,7 @@ class Parser:
                 operand1 = stack.pop()
                 stack.append('(' + str(operand1) + str(token.text) + str(operand2) + ')')
 
-        return stack[0]
+        return stack[0] if len(stack)>0 else ''
 
 
 

@@ -43,6 +43,14 @@ python3 vibex.py --help
 ## Grammar 🖋️  
   
 ### 🧮 Basic Operations 🧮
+**Unary**
+| Operator | Name      |
+|----------|-----------|
+| +        | Positive  |
+| -        | Negative  |
+| ++       | Increment |
+| --       | Decrement |
+  
 **Arithmetic**
 | Operator    | Name           | Description                                        |
 |-------------|----------------|----------------------------------------------------|
@@ -468,17 +476,14 @@ ASM
 - Constants;
 - Classes;
 - Exceptions;
-- Increment & Decrement;
 - Pointers & References;
 - Strings concatenation during output.
   
   
 ## Changelog Preview 📰
-**Development Version 0.1.4.4**
-- Various optimizations.
-  
-**Development Version 0.1.4.3**
-- Fixed a bug in function declaration and in return keyword;
+**Development Version 0.1.5.0**
+- Added the ability to use increment and decrement operators;
+- Fixed a bug in the parsing of parenthesized expressions;
 - Minor improvements.
   
 **All versions**
