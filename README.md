@@ -481,8 +481,8 @@ ASM
   
   
 ## Changelog Preview 📰
-**Development Version 0.1.5.2**
-- Fixed a bug in the parsing of increment and decrement opeartors.
+**Development Version 0.1.5.3**
+- Fixed a bug in string parsing.
   
 **All versions**
 - Read more [here](./CHANGELOG.md).

@@ -1,10 +1,13 @@
 # Changelog  
+**Development Version 0.1.5.3**
+- Fixed a bug in string parsing.
+  
 **Development Version 0.1.5.2**
-- Fixed a bug in the parsing of increment and decrement opeartors.
+- Fixed a bug in increment/decrement opeartors parsing.
   
 **Development Version 0.1.5.1**
-- Fixed a bug in the parsing of unary opeartors;
-- Fixed a bug in the parsing of absolute values;
+- Fixed a bug in unary opeartors parsing;
+- Fixed a bug in absolute value parsing;
 - Various optimizations.
   
 **Development Version 0.1.5**

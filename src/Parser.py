@@ -1165,7 +1165,7 @@ class Parser:
                 i+=1
 
             if i>0:
-                if not self.checkMyToken(expr[i-1], TokenType.IDENT) and not self.checkMyToken(expr[i-1], TokenType.NUMBER) and not self.checkMyToken(expr[i-1], TokenType.RPAREN):
+                if not self.checkMyToken(expr[i-1], TokenType.IDENT) and not self.checkMyToken(expr[i-1], TokenType.STRING_IDENT) and not self.checkMyToken(expr[i-1], TokenType.NUMBER) and not self.checkMyToken(expr[i-1], TokenType.RPAREN):
                     checkUnary()
             else:
                 checkUnary()
