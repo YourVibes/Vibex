@@ -8,7 +8,7 @@ class Emitter:
     def __init__(self, fullPath):
         self.fullPath = fullPath
         self.header = ""
-        self.functions = ""
+        self.functions = "\n"
         self.code = ""
 
 
@@ -34,4 +34,4 @@ class Emitter:
 
     def writeFile(self):
         with open(self.fullPath, 'w') as outputFile:
-            outputFile.write(self.header + self.functions + self.code)
+            outputFile.write(self.header + self.code + self.functions)

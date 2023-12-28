@@ -1,4 +1,7 @@
 # Changelog  
+**Development Version 0.1.5.6**
+- Improvements in transcription of functions in C++.
+  
 **Development Version 0.1.5.5**
 - Added the ability to concatenate multiple strings when initializing or assigning a string variable.
   

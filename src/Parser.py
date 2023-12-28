@@ -186,6 +186,7 @@ class Parser:
             self.nextToken()
             self.match(TokenType.COLON)
             if Token.checkIfType(self.curToken.text) != None:
+                signature = ''
                 funType = self.convertVbxToCppType(self.curToken.text)
 
                 self.nextToken()
@@ -200,6 +201,7 @@ class Parser:
                     self.updateScope('+')
                     self.nextToken()
                     self.match(TokenType.LPAREN)
+                    signature += funType + " " + funName + "("
                     self.emitter.emit(funType + " " + funName + "(", self.section, False)
                     if self.checkToken(TokenType.RPAREN):
                         self.nextToken()
@@ -208,12 +210,16 @@ class Parser:
                         while self.checkToken(TokenType.COMMA) or stCycle:
                             if stCycle:
                                 stCycle = False
-                            self.emitter.emit(self.getFormalParametersExpression(), self.section, False)
+                            formalParameters = self.getFormalParametersExpression()
+                            signature += formalParameters
+                            self.emitter.emit(formalParameters, self.section, False)
                         self.emitter.deleteLastChars(self.section, 1)
+                        signature = signature[:-1]
                         self.match(TokenType.RPAREN)
 
                     # Body of the function
                     self.match(TokenType.LBRACE)
+                    signature += ');'
                     self.emitter.emit(")\n{", self.section, True)
                     while not self.checkToken(TokenType.RBRACE):
                         self.statement()
@@ -223,6 +229,8 @@ class Parser:
                     self.scopeMultiplier = 1
                     self.updateScope('-')
                     self.garbageCollector()
+
+                    self.emitter.emit(signature, Section.HEADER, True)
                 else:
                     self.abort("Expected IDENT, got " + self.curToken.kind.name)
             else:
