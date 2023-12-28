@@ -1,4 +1,7 @@
 # Changelog  
+**Development Version 0.1.5.5**
+- Added the ability to concatenate multiple strings when initializing or assigning a string variable.
+  
 **Development Version 0.1.5.4**
 - Added the ability to concatenate multiple strings during output.
   

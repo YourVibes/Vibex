@@ -1252,6 +1252,13 @@ class Parser:
                     self.abort('You cannot create nested absolute values')
                 else:
                     mode = 'abs'
+            elif self.checkMyToken(token, TokenType.PLUS):
+                operand2 = stack.pop()
+                operand1 = stack.pop()
+                if self.isString(operand1) and self.isString(operand2):
+                    stack.append('(' + 'CONCAT + ' + str(operand1) + str(token.text) + str(operand2) + ')')
+                else:
+                    stack.append('(' + str(operand1) + str(token.text) + str(operand2) + ')')
             else:
                 operand2 = stack.pop()
                 operand1 = stack.pop()
@@ -1294,6 +1301,10 @@ class Parser:
             return Token.checkIfCharType(value[0])
         else:
             return False
+
+    # Check if it is a string
+    def isString(self, text):
+        return text.startswith('"') and text.endswith('"')
 
 
 

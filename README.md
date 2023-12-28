@@ -162,6 +162,10 @@ You can write text strings either by wrapping them between " or '
 var:string name = "Hello, world!";
 var:string name = 'Hello, world!';
 ```
+You can concatenate two or more strings using the plus operator
+```java
+var:string name = "Hello, " + "world!";
+```
   
 **Binary, Octal, Decimal & Hexadecimal**
 ```java
@@ -480,8 +484,8 @@ ASM
   
   
 ## Changelog Preview 📰
-**Development Version 0.1.5.4**
-- Added the ability to concatenate multiple strings during output.
+**Development Version 0.1.5.5**
+- Added the ability to concatenate multiple strings when initializing or assigning a string variable.
   
 **All versions**
 - Read more [here](./CHANGELOG.md).
