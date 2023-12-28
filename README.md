@@ -2,7 +2,7 @@
 A programming language for writing code the way you want it.<br>
 Written in <strong>Python</strong> and translated into <strong>C++</strong>.<br>
 <img alt="Logo" src="./logo/logo.png"><br>
-Made with 💜 by <strong>YourVibes™</strong>.<br>
+Made with 💜 by <strong>Yourvibes</strong>.<br>
 Main developer: <strong>Christian Alessandri</strong>.<br>
 Secondary developer: <strong>Davide Sciaulino</strong>.<br><br>
 <i>⚠️ For proper operation, the transcompiler requires you to have installed on your development environment: <strong>python3</strong> and <strong>gcc compiler</strong>.</i>
@@ -481,15 +481,8 @@ ASM
   
   
 ## Changelog Preview 📰
-**Development Version 0.1.5.1**
-- Fixed a bug in the parsing of unary opeartors;
-- Fixed a bug in the parsing of absolute values;
-- Various optimizations.
-  
-**Development Version 0.1.5**
-- Added the ability to use increment and decrement operators;
-- Fixed a bug in the parsing of parenthesized expressions;
-- Minor improvements.
+**Development Version 0.1.5.2**
+- Fixed a bug in the parsing of increment and decrement opeartors.
   
 **All versions**
 - Read more [here](./CHANGELOG.md).

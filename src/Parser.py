@@ -1181,8 +1181,13 @@ class Parser:
                     res.append(stack.pop())
                 res.append(expr[i])
             elif self.checkMyToken(expr[i], TokenType.IDENT):
-                text = '(' + unary + expr[i].text + ')' 
+                ndUnary = ''
+                if(i < len(expr)-1):
+                    if Token.checkIfIncrementDecrementOperator(expr[i+1].kind):
+                        ndUnary = expr[i+1].text
+                text = '(' + unary + expr[i].text + ndUnary + ')'
                 res.append(Token(text, expr[i].kind))
+                if ndUnary != '': i+=1
             elif self.checkMyToken(expr[i], TokenType.STRING_IDENT) or self.checkMyToken(expr[i], TokenType.ARRAY) or self.checkMyToken(expr[i], TokenType.FUNCTION) or self.checkMyToken(expr[i], TokenType.TRUE) or self.checkMyToken(expr[i], TokenType.FALSE):
                 res.append(expr[i])
             elif Token.checkIfType(expr[i].text) is not None:
