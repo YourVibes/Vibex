@@ -484,9 +484,8 @@ ASM
   
   
 ## Changelog Preview 📰
-**Development Version 0.1.5.7**
-- Various optimizations;
-- Minor improvements.
+**Development Version 0.1.5.8**
+- Added underscore among legal characters that can be used to call variables.
   
 **All versions**
 - Read more [here](./CHANGELOG.md).

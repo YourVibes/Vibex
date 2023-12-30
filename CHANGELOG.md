@@ -1,4 +1,7 @@
 # Changelog  
+**Development Version 0.1.5.8**
+- Added underscore among legal characters that can be used to call variables.
+  
 **Development Version 0.1.5.7**
 - Various optimizations;
 - Minor improvements.

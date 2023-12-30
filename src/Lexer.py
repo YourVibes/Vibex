@@ -1,16 +1,21 @@
+#################
+### LIBRARIES ###
+#################
 from Token import *
 from TokenType import *
 from TerminalUtilities import *
+
 
 import sys
 
 
 
 
-# Lexer keeps track of the current position in the source code and produces each token
+#############
+### LEXER ###
+#############
 class Lexer:
     def __init__(self, source):
-        # Source code to be analysed as string
         self.source = source + '\n'     # Add a new line to simplify scanning/analysis of the last token/instruction
         self.curChar = ''               # Current character in the string
         self.curLine = 1                # Current line in the code
@@ -96,12 +101,12 @@ class Lexer:
 
     # Returns the next token
     def getToken(self):
+        # Skip the unimportant parts
         self.skipWhitespace()
         self.skipComment()
-        token = None
 
-        # Check the first character of this token to see if we can decide what it is.
-        # If it is a multi-character operator (e.g. !=), a number, an identifier or a keyword, then it will process the remainder
+        # Get token
+        token = None
         if self.curChar == '+':
             token = self.checkBetween3Possibilities('+', '=', TokenType.PLUS, TokenType.INCREMENT, TokenType.PLUSEQ)
         elif self.curChar == '-':
@@ -137,10 +142,8 @@ class Lexer:
         elif self.curChar == '~':
             token = Token(self.curChar, TokenType.BW_NOT)
         elif self.curChar == '=':
-            # Check whether this token is = or ==
             token = self.checkBetween2Possibilities('=', TokenType.EQ, TokenType.EQEQ)
-        elif self.curChar == '>':
-            # Check if this is a > or >= or >> or >>=
+        elif self.curChar == '>': # Check if this is a > or >= or >> or >>=
             if self.peek() == '=':
                 lastChar = self.curChar
                 self.nextChar()
@@ -155,8 +158,7 @@ class Lexer:
                     token = Token('>>', TokenType.BW_RSHIFT)
             else:
                 token = Token(self.curChar, TokenType.GT)
-        elif self.curChar == '<':
-            # Check if this is a token < or <= or << or <<=
+        elif self.curChar == '<': # Check if this is a token < or <= or << or <<=
             if self.peek() == '=':
                 lastChar = self.curChar
                 self.nextChar()
@@ -182,18 +184,16 @@ class Lexer:
             self.nextChar()
             startPos = self.curPos
             while self.curChar != '\"':
-                # Do not allow special characters in the string, no escape characters, carriage returns, tabulations or %
                 if self.curChar in ('\0'):
                     self.abort("Character not allowed in string")
                 self.nextChar()
             tokText = self.source[startPos: self.curPos]  # Get the substring
             token = Token(tokText, TokenType.STRING_IDENT)
         elif self.curChar == "'":
-            # Get characters in quotes
+            # Get characters in single quotes
             self.nextChar()
             startPos = self.curPos
             while self.curChar != "'":
-                # Do not allow special characters in the string, no escape characters, carriage returns, tabulations or %
                 if self.curChar in ('\0'):
                     self.abort("Character not allowed in string")
                 self.nextChar()
@@ -244,12 +244,12 @@ class Lexer:
             # Get the substring
             tokText = self.source[startPos: self.curPos + 1]
             token = Token(tokText, TokenType.NUMBER)
-        elif self.curChar.isalpha():
+        elif self.curChar.isalpha() or self.curChar == '_':
             self.numSysMode = 10 # Set default number system to decimal
-            # The main character is a letter, so it must be an identifier or keyword
+            # The main character is a letter or an underscore, so it must be an identifier or keyword
             # Get all consecutive alphanumeric characters
             startPos = self.curPos
-            while self.peek().isalnum():
+            while self.peek().isalnum() or self.peek() == '_':
                 self.nextChar()
             # Checks whether the token is a keyword (case-insensitive)
             tokText = self.source[startPos: self.curPos + 1]
@@ -294,14 +294,11 @@ class Lexer:
                     else:
                         token = Token(self.source[startPos: self.curPos + 1], TokenType.IDENT)
         elif self.curChar == '\n':
-            # New line
             token = Token('\n', TokenType.NEWLINE)
             self.curLine += 1
         elif self.curChar == '\0':
-            # EOF
             token = Token('', TokenType.EOF)
         else:
-            # Unknown token
             self.abort("Unknown token: " + self.curChar)
         self.nextChar()
         return token
@@ -332,7 +329,7 @@ class Lexer:
                     self.nextChar()
 
 
-    # String correction
+    # String correction to go from single to double quotes
     def stringCorrection(self, str):
         newStr = ""
         for char in str:
