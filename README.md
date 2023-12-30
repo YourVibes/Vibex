@@ -484,8 +484,9 @@ ASM
   
   
 ## Changelog Preview 📰
-**Development Version 0.1.5.6**
-- Improvements in transcription of functions in C++.
+**Development Version 0.1.5.7**
+- Various optimizations;
+- Minor improvements.
   
 **All versions**
 - Read more [here](./CHANGELOG.md).

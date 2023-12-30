@@ -1,4 +1,8 @@
 # Changelog  
+**Development Version 0.1.5.7**
+- Various optimizations;
+- Minor improvements.
+  
 **Development Version 0.1.5.6**
 - Improvements in transcription of functions in C++.
   

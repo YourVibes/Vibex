@@ -3,7 +3,6 @@
 #################
 from Token import *
 from TokenType import *
-from Lexer import *
 from Section import *
 from TerminalUtilities import *
 
@@ -17,8 +16,9 @@ import sys
 ### PARSER ###
 ##############
 class Parser:
-    def __init__(self, lexer, emitter):
-        self.lexer = lexer
+    def __init__(self, tokens, emitter):
+        self.tokens = tokens
+        self.tokensIndex = 0
         self.emitter = emitter
 
         self.GLOBAL_SCOPE = 0           # Global scope
@@ -76,7 +76,8 @@ class Parser:
     def nextToken(self):
         self.prevToken = self.curToken
         self.curToken = self.peekToken
-        self.peekToken = self.lexer.getToken()
+        self.peekToken = self.tokens[self.tokensIndex]
+        self.tokensIndex += 1
 
     # Goes to the prev token
     def backToken(self, tempTok):
@@ -142,7 +143,7 @@ class Parser:
         self.emitter.emit('#include <string>', self.section, True)
         self.emitter.emit('#include <cmath>', self.section, True)
         self.emitter.emit('\nusing namespace std;', self.section, True)
-        self.emitter.emit('\nconst string CONCAT = "";\n', self.section, True)
+        self.emitter.emit('\nconst string VBX_UTILS_CONCAT = "";\n', self.section, True)
         self.section = Section.CODE
         self.emitter.emit('\nint main()\n{', self.section, True)
         self.emitter.emit('_setmode(_fileno(stdout), _O_U16TEXT);\n', self.section, True)
@@ -170,7 +171,7 @@ class Parser:
     ### ERRORS ###
     ##############
     def abort(self, message):
-        sys.exit(error('Error! ' + message + '\n\t\bat line: ' + str(self.lexer.getCurLine())))
+        sys.exit(error('Error! ' + message + '\n\t\bat line: ' + str(self.curLine)))
 
 
 
@@ -1264,7 +1265,7 @@ class Parser:
                 operand2 = stack.pop()
                 operand1 = stack.pop()
                 if self.isString(operand1) and self.isString(operand2):
-                    stack.append('(' + 'CONCAT + ' + str(operand1) + str(token.text) + str(operand2) + ')')
+                    stack.append('(' + 'VBX_UTILS_CONCAT + ' + str(operand1) + str(token.text) + str(operand2) + ')')
                 else:
                     stack.append('(' + str(operand1) + str(token.text) + str(operand2) + ')')
             else:
